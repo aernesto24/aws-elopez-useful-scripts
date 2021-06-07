@@ -1,4 +1,4 @@
-"""This script will return a list of s3 buckets with defined fields
+"""This script will return a list of dynamoDB tables with defined fields
 and store the information on a csv file - can be use for audit or gathering information"""
 
 import boto3
@@ -30,29 +30,29 @@ def run():
     aws_mgmt_con = boto3.session.Session(profile_name = local_profile_name)
     
     #Get cloudwatch client conection
-    s3_con_cli = aws_mgmt_con.client(service_name='s3')
+    ddb_con_cli = aws_mgmt_con.client(service_name='dynamodb')
     
-    response_s3 = s3_con_cli.list_buckets(MaxResults=1000)
+    #paginator to obtain more than 100 results, 100 is the max allowed without this
+    paginator = ddb_con_cli.get_paginator('list_tables')
+    page_iterator = paginator.paginate()
+    filtered_iterator = page_iterator.search("TableNames")
     
+    #response_ddb = ddb_con_cli.list_tables(Limit=1000)
+    #print(response_ddb)
     
     #Creation of the csv file
     current_date = datetime.datetime.now()
-    filename = str(current_date.year) + str(current_date.month) + str(current_date.day) + '_s3_inventory.csv'
+    filename = str(current_date.year) + str(current_date.month) + str(current_date.day) + '_ddb_inventory.csv'
 
     csv_object = open(filename, 'w', newline='')
     csv_write_object = csv.writer(csv_object)
-    csv_write_object.writerow(['Bucket Name', 'Bucket Creation Date','Region'])  
+    csv_write_object.writerow(['Table Name', 'Table Attributes'])  
     
-    for bucket in response_s3['Buckets']:
-        bucket_name = bucket["Name"]
-        bucket_creation_date = bucket["CreationDate"]
-        bucket_location = s3_con_cli.get_bucket_location(Bucket=bucket_name)
-        bucket_region = bucket_location.get('LocationConstraint', 'Region not defined under LocationContraint')
+    for each_ddb_table in filtered_iterator:
+        #print(each_ddb_table)
+        response_ddb_table = ddb_con_cli.describe_table(TableName=each_ddb_table)
         
-        if "test" in bucket_name.lower():
-            continue
-        else:
-            csv_write_object.writerow([bucket_name, bucket_creation_date, bucket_region])
+        csv_write_object.writerow([each_ddb_table, response_ddb_table])
     
     csv_object.close()
 
