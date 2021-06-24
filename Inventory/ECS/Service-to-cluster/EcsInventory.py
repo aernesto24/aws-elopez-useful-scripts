@@ -8,7 +8,7 @@ import datetime
 def profile_account():
     choose_local_profile_name = int(input("""Select your local profile name:
         1. profile_1
-        2. profile_"
+        2. profile_2
         : """))
     
     #use the names of your local profiles  under ~/.aws/credentials
