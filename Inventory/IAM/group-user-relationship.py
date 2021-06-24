@@ -7,15 +7,15 @@ import datetime
 
 def profile_account():
     choose_local_profile_name = int(input("""Select your local profile name:
-        1. goku
-        2. default
+        1. profile_1
+        2. profile_2
         : """))
     
     #use the names of your local profiles  under ~/.aws/credentials
     if choose_local_profile_name == 1:
-        local_profile_name = 'goku'
+        local_profile_name = 'profile_1'
     elif choose_local_profile_name == 2:
-        local_profile_name = 'default'
+        local_profile_name = 'profile_2'
     else:
         print('This option is not valid!! we will use default ')
         local_profile_name = 'default'
